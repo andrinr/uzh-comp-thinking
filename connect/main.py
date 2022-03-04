@@ -42,9 +42,9 @@ def predict(board, depth, player):
         coords1 = first_zero(board, 0)
         optimal_rating = -1000
         optimal_board = None
-        for i0 in range(size0):
+        for i1 in range(size1):
             next_board = np.copy(board)
-            next_board[i0, coords1[i0]] = -1
+            next_board[coords1[i1], i1] = player
 
             next_rating = predict(next_board, depth + 1, player - 2* player)
             if player == 1 and next_rating > optimal_rating:
@@ -171,8 +171,8 @@ def win(board):
 
 # Rates the state of the board
 def rating(board):
-    mask_bot_pad = board != -1
-    mask_player_pad = board != 1
+    mask_bot = board != -1
+    mask_player = board != 1
 
     sum_bot = np.zeros(size0)
     sum_player = np.zeros(size0)
@@ -182,10 +182,10 @@ def rating(board):
     # Axis 0
     for i1 in range(size1):
         sum_bot *= mask_bot[:,i1]
-        sum_bot += board[mask_bot][:,i1]
+        sum_bot += (board*mask_bot)[:,i1]
     
         sum_player *= mask_player[:,i1]
-        sum_player += board[mask_player][:,i1]
+        sum_player += (board*mask_player)[:,i1]
         
         total_rating += sum(sum_bot)
         total_rating += sum(sum_player)
@@ -197,10 +197,10 @@ def rating(board):
     # Axis 1
     for i0 in range(size0):
         sum_bot *= mask_bot[i0,:]
-        sum_bot += board[mask_bot][i0,:]
+        sum_bot += (board*mask_bot)[i0,:]
 
         sum_player *= mask_player[i0,:]
-        sum_player += board[mask_player][i0,:]
+        sum_player += (board*mask_player)[i0,:]
         
         total_rating += sum(sum_bot)
         total_rating += sum(sum_player)
@@ -213,13 +213,11 @@ def rating(board):
 
     # Diagonals along 0, +1
     for i0 in range(size0):
-        rolled_mask = mask_bot_pad[i0,size0+i0:2*size0+i0]
         sum_bot *= mask_bot_pad[i0,size0+i0:2*size0+i0]
-        sum_bot += mask_bot_pad[i0,size0+i0:2*size0+i0]
+        sum_bot += (mask_bot_pad*board_pad)[i0,size0+i0:2*size0+i0]
 
-        rolled_mask = mask_player_pad[i0,size0+i0:2*size0+i0]
-        sum_player *= rolled_mask
-        sum_player += rolled_mask
+        sum_player *= mask_player_pad[i0,size0+i0:2*size0+i0]
+        sum_player += (mask_player_pad*board_pad)[i0,size0+i0:2*size0+i0]
         
         total_rating += sum(sum_bot)
         total_rating += sum(sum_player)
@@ -229,13 +227,11 @@ def rating(board):
 
     # Diagonals along 0, +1
     for i0 in range(size0):
-        rolled_mask = mask_bot_pad[i0,size0-i0:2*size0-i0]
-        sum_bot *= rolled_mask
-        sum_bot += rolled_mask
+        sum_bot *= mask_bot_pad[i0,size0-i0:2*size0-i0]
+        sum_bot += (board_pad * mask_bot_pad)[i0,size0-i0:2*size0-i0]
 
-        rolled_mask = mask_player_pad[i0,size0-i0:2*size0-i0]
-        sum_player *= rolled_mask
-        sum_player += rolled_mask
+        sum_player *= mask_player_pad[i0,size0-i0:2*size0-i0]
+        sum_player += (board_pad * mask_player_pad)[i0,size0-i0:2*size0-i0]
 
         total_rating += sum(sum_bot)
         total_rating += sum(sum_player)
