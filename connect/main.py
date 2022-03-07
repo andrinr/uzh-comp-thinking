@@ -16,6 +16,7 @@ map = dict()
 
 def player_move(board):
     show_board(board)
+
     if game_has_ended(board):
         return
 
@@ -26,18 +27,21 @@ def player_move(board):
     next_board = np.copy(board)
     next_board[move0, move1] = -1
 
-    bot_move(next_board)
-
-def bot_move(board):
     if game_has_ended(board):
         return
 
+    bot_move(next_board)
+
+def bot_move(board):
     predict(board, 0, 1)
+
+    if game_has_ended(board):
+        return
 
 def predict(board, depth, player):
     state = win(board)
     if state != 0:
-        return 1000 * state
+        return 3000 * state
 
     if depth < compute_depth:
         coords1 = first_zero(board, 1)
@@ -48,13 +52,15 @@ def predict(board, depth, player):
         optimal_board = next_board
         next_rating = predict(next_board, depth + 1, player - 2* player)
         optimal_rating = next_rating
+        if depth == 0:
+            print(next_rating)
 
         for i0 in range(1, len(coords1)):
             next_board = np.copy(board)
             next_board[i0, coords1[i0]] = player
 
 
-            next_rating = predict(next_board, depth + 1, player - 2* player)
+            next_rating = 0.99 * predict(next_board, depth + 1, player - 2* player)
 
             if (player == 1 and next_rating > optimal_rating):
                 optimal_rating = next_rating
@@ -63,6 +69,8 @@ def predict(board, depth, player):
             if (player == -1 and next_rating < optimal_rating):
                 optimal_rating = next_rating
                 optimal_board = next_board
+            if depth == 0:
+                print(next_rating)
         
         if depth == 0:
             player_move(optimal_board)
@@ -99,7 +107,7 @@ def win(board):
     sum_bot = np.zeros(size0)
     sum_player = np.zeros(size0)
 
-    # Axis 0
+    # Axis 1
     for i1 in range(size1):
         sum_bot *= mask_bot[:,i1]
         sum_bot += mask_bot[:,i1]
@@ -114,7 +122,7 @@ def win(board):
     sum_bot = np.zeros(size1)
     sum_player = np.zeros(size1)
 
-    # Axis 1
+    # Axis 0
     for i0 in range(size0):
         sum_bot *= mask_bot[i0,:]
         sum_bot += mask_bot[i0,:]
@@ -229,4 +237,4 @@ def show_board(board):
 # start
 init_board = np.zeros((size0,size1))
 
-player_move(init_board)
+bot_move(init_board)
