@@ -52,8 +52,8 @@ def predict(board, depth, player):
         optimal_board = next_board
         next_rating = predict(next_board, depth + 1, player - 2* player)
         optimal_rating = next_rating
-        if depth == 0:
-            print(next_rating)
+        #if depth == 0:
+        #    print(next_rating)
 
         for i0 in range(1, len(coords1)):
             next_board = np.copy(board)
@@ -69,8 +69,8 @@ def predict(board, depth, player):
             if (player == -1 and next_rating < optimal_rating):
                 optimal_rating = next_rating
                 optimal_board = next_board
-            if depth == 0:
-                print(next_rating)
+            #if depth == 0:
+            #    print(next_rating)
         
         if depth == 0:
             player_move(optimal_board)
@@ -237,4 +237,4 @@ def show_board(board):
 # start
 init_board = np.zeros((size0,size1))
 
-bot_move(init_board)
+player_move(init_board)
