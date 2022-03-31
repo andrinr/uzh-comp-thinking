@@ -1,11 +1,13 @@
-from glob import glob
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import convolve
 from matplotlib.animation import FuncAnimation
 
-x = 20
-y = 20
+import time
+
+
+x = 1000
+y = 1000
 
 grid = np.random.rand(x, y) > 0.7
 
@@ -20,19 +22,23 @@ imshow = plt.imshow(grid)
 def update(i):
     global grid
 
-    surround = convolve(grid.astype(int), kernel, mode='constant', cval=0)
-    print(grid)
-    print(surround)
+    surround = convolve(grid.astype(int), kernel, mode='wrap', cval=0)
+
     grid = \
-        np.logical_or(\
-            np.logical_and(surround == 3, np.logical_not(grid)),\
-            np.logical_and(np.logical_and(surround >= 2, surround <= 3), grid))
+        np.logical_or(surround == 3,
+        np.logical_and(surround == 2, grid))
 
     imshow.set_data(grid)
 
-    print(i)
-
-
-ani = FuncAnimation(fig, update, frames=np.linspace(0, 1000, 1), interval=1000, repeat=True)
+ani = FuncAnimation(fig, update, frames=np.linspace(0, 1000, 1), interval=300, repeat=True)
+#
+#start_time = time.time()
+#i = 0
+#while(True):
+#    if time.time() - start_time > 60:
+#        break
+#    i += 1
+#    update(0)
+#print(i)
 
 plt.show()
