@@ -3,7 +3,6 @@ from scipy.ndimage import convolve
 import matplotlib.pyplot as plt
 
 def hash(grid):
-
     sum0 = np.sum(grid, 0)
     sum1 = np.sum(grid, 1)
 
@@ -35,9 +34,8 @@ def solve(grid, pieces, max, dict, shapes):
         return 1
     
     surround = convolve(grid.astype(int), kernel, mode='constant', cval=0)
-    mask = np.logical_and(surround > grid, np.logical_not(grid))
+    indices = zip(*np.where(np.logical_and(surround > grid, np.logical_not(grid))))
 
-    indices = zip(*np.where(mask))
     sum = 0
     for i, j in indices:
         grid_ = np.copy(grid)
@@ -46,20 +44,26 @@ def solve(grid, pieces, max, dict, shapes):
 
     return sum
 
-n = int(input("count"))
+n = int(input("Number of tiles: "))
 
 init = np.zeros((n*2,n*2))
-
 init[n, n] = 1
 
 d = dict()
 
 shapes = []
 c = solve(init, 1, n, d, shapes)
+size_x = round(c ** 0.5)
+size_y = round(1+ (c / size_x))
 
-print(c)
+print(shapes)
+rows = []
+for j in range(size_y):
+    rows.append(np.concatenate(shapes[size_x * j : size_x * (j + 1)]))
+
+print("Number of possible shapes: ", c)
 
 fig, ax = plt.subplots()
-imshow = plt.imshow(np.concatenate(shapes))
+imshow = plt.imshow(np.concatenate(rows))
 
 plt.show()
