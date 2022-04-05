@@ -21,13 +21,22 @@ kernel[2,0] = 0
 def solve(grid, pieces, max, dict, shapes):
     h1, h2, h1r, h2r = hash(grid)
 
-    if (h1 + h2) in dict or (h2 + h1) in dict or\
-        (h1r + h2) in dict or (h2 + h1r) in dict or\
-        (h1 + h2r) in dict or (h2r + h1) in dict or\
-        (h1r + h2r) in dict or (h2r + h1r) in dict:
+    if (h1 + h2) in dict:
         return 0
     else:
-        dict[h1+h2] = grid
+        # all possible permutations
+        dict[h1+h2] = True
+        dict[h2+h1] = True
+
+        dict[h1r+h2] = True
+        dict[h2+h1r] = True
+
+        dict[h1+h2r] = True
+        dict[h2r+h1] = True
+
+        dict[h1r+h2r] = True
+        dict[h2r+h1r] = True
+        
 
     if pieces == max:
         shapes.append(grid)
@@ -56,14 +65,13 @@ c = solve(init, 1, n, d, shapes)
 size_x = round(c ** 0.5)
 size_y = round(1+ (c / size_x))
 
-print(shapes)
-rows = []
-for j in range(size_y):
-    rows.append(np.concatenate(shapes[size_x * j : size_x * (j + 1)]))
+#rows = []
+#for j in range(size_y):
+#    rows.append(np.concatenate(shapes[size_x * j : size_x * (j + 1)]))
 
 print("Number of possible shapes: ", c)
 
-fig, ax = plt.subplots()
-imshow = plt.imshow(np.concatenate(rows))
+#fig, ax = plt.subplots()
+#imshow = plt.imshow(np.concatenate(rows))
 
-plt.show()
+#plt.show()
