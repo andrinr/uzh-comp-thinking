@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.ndimage import convolve
 import matplotlib.pyplot as plt
+import math
 
 def hash(grid):
     sum0 = np.sum(grid, 0)
@@ -18,29 +19,47 @@ kernel[2,2] = 0
 kernel[0,2] = 0
 kernel[2,0] = 0
 
-def solve(grid, pieces, max, dict, shapes):
+stack = []
+total = 0
+
+n = int(input("Number of tiles: "))
+dim = math.ceil(n * 1.3)
+init = np.zeros((dim, dim))
+init[round(dim/2), round(dim/2)] = 1
+
+d = dict()
+
+shapes = []
+
+stack.append((init, 1))
+
+while len(stack) > 0:
+    grid, pieces = stack.pop()
+
     h1, h2, h1r, h2r = hash(grid)
 
-    if (h1 + h2) in dict:
-        return 0
+    if (h1 + h2) in d:
+        continue
+
     else:
         # all possible permutations
-        dict[h1+h2] = True
-        dict[h2+h1] = True
+        d[h1+h2] = True
+        d[h2+h1] = True
 
-        dict[h1r+h2] = True
-        dict[h2+h1r] = True
+        d[h1r+h2] = True
+        d[h2+h1r] = True
 
-        dict[h1+h2r] = True
-        dict[h2r+h1] = True
+        d[h1+h2r] = True
+        d[h2r+h1] = True
 
-        dict[h1r+h2r] = True
-        dict[h2r+h1r] = True
+        d[h1r+h2r] = True
+        d[h2r+h1r] = True
         
 
-    if pieces == max:
+    if pieces == n:
+        total += 1
         shapes.append(grid)
-        return 1
+        continue
     
     surround = convolve(grid.astype(int), kernel, mode='constant', cval=0)
     indices = zip(*np.where(np.logical_and(surround > grid, np.logical_not(grid))))
@@ -49,29 +68,24 @@ def solve(grid, pieces, max, dict, shapes):
     for i, j in indices:
         grid_ = np.copy(grid)
         grid_[i, j] = 1
-        sum += solve(grid_, pieces + 1, max, dict, shapes)
+        stack.append((grid_, pieces + 1))
 
-    return sum
 
-n = int(input("Number of tiles: "))
 
-init = np.zeros((n*2,n*2))
-init[n, n] = 1
+print("Number recursions:", len(d.values()))
+print("Number of possible shapes: ", total)
 
-d = dict()
 
-shapes = []
-c = solve(init, 1, n, d, shapes)
-size_x = round(c ** 0.5)
-size_y = round(1+ (c / size_x))
+size_y = math.ceil(len(shapes) ** 0.5)
+size_x = math.ceil(len(shapes) / size_y)
+rows = []
+for j in range(size_x):
+    conc = np.concatenate(shapes[size_y * j : size_y * (j + 1)], axis= 0)
+    conc.resize((dim*size_y, dim))
+    rows.append(conc)
 
-#rows = []
-#for j in range(size_y):
-#    rows.append(np.concatenate(shapes[size_x * j : size_x * (j + 1)]))
 
-print("Number of possible shapes: ", c)
+fig, ax = plt.subplots()
+imshow = plt.imshow(np.concatenate(rows, axis = 1))
 
-#fig, ax = plt.subplots()
-#imshow = plt.imshow(np.concatenate(rows))
-
-#plt.show()
+plt.show()
