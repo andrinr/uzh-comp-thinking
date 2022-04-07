@@ -10,6 +10,8 @@ def hash(grid):
     sum0 = sum0[sum0 !=0]
     sum1 = sum1[sum1 !=0]
 
+
+
     return str(sum0), str(sum1), str(sum0[::-1]), str(sum1[::-1])
 
 # Define Kernels
@@ -23,7 +25,7 @@ stack = []
 total = 0
 
 n = int(input("Number of tiles: "))
-dim = math.ceil(n * 1.3)
+dim = math.ceil(n * 2)
 init = np.zeros((dim, dim))
 init[round(dim/2), round(dim/2)] = 1
 
