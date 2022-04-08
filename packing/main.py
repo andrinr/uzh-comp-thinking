@@ -1,5 +1,7 @@
 import numpy as np
 from scipy.ndimage import convolve
+from scipy.ndimage import label
+from scipy import ndimage
 import matplotlib.pyplot as plt
 import math
 
@@ -75,22 +77,35 @@ while len(stack) > 0:
         
         stack.append((grid_, pieces + 1))
 
-
-
 print("Number recursions:", len(d.values()))
 print("Number of possible shapes: ", total)
 
 
-#size_y = math.ceil(len(shapes) ** 0.5)
-#size_x = math.ceil(len(shapes) / size_y)
-#rows = []
-#for j in range(size_x):
-#    conc = np.concatenate(shapes[size_y * j : size_y * (j + 1)], axis= 0)
-#    conc.resize((dim*size_y, dim))
-#    rows.append(conc)
+# Check if shapes with n = 6 can shape a box
+# Find algorithm for it 
+# Exhaustive search
+# Must 35 * 6 = 7 * 5 * 3 * 2 = i.e. many different boxes
+
+# Give number of 
+
+# If we reach something a grid where we have a connected hole with 5 or less tiles this means its an invalid leaf
 
 
-#fig, ax = plt.subplots()
-#imshow = plt.imshow(np.concatenate(rows, axis = 1))
+grid_sizes = [(7*3, 5*2), (7*2, 5*3), (3*2, 7*5)]
 
-#plt.show()
+x, y = grid_sizes[0]
+
+board = np.zeros((x,y))
+
+def check(board, n):
+    labeled_array, num_features = ndimage.label(np.logical_not(board))
+    s = ndimage.sum(board, labeled_array, index=[n for n in range(1,num_features)])
+
+    return min(s) > n
+
+
+board[1,1] = 1
+board[0,1] = 1
+board[1,0] = 1
+
+print(check(board, 2))
