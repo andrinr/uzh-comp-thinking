@@ -4,13 +4,14 @@ import matplotlib.pyplot as plt
 import math
 import random as rnd
 from scipy.stats import norm    
+from scipy.stats import multivariate_normal
 from sklearn.model_selection import train_test_split
 
-nLabels, maxSamples, testSamples = 3, 200, 20
+nLabels, minSamples, maxSamples, testSamples =4, 100, 300, 20
 
 for i in range(nLabels):
 
-    n = round(maxSamples * rnd.random())
+    n = minSamples + round((maxSamples-minSamples) * rnd.random())
     means, cov = [5*(rnd.random()-0.5), 5*(rnd.random()-0.5)], [[rnd.random()-0.5,rnd.random()-0.5], [rnd.random()-0.5,rnd.random()-0.5]]
     sample = np.random.multivariate_normal(means, cov, size=n)
 
@@ -28,19 +29,18 @@ y = samples[:,2]
 
 
 
-def bayes_class(x_train, y_train, x):
+def bayes_class_ind(x_train, y_train, x):
     maxP, maxLabel = 0, -1
 
-    unq, counts = np.unique(y_train, return_index=True)
+    unq, counts = np.unique(y_train, return_counts=True)
     rows, cols = np.shape(x_train)
-    
+
 
     for i in range(len(unq)):
-        label = unq[i]
-        print(label)
+        label = round(unq[i])
         p_label = counts[i] / rows
 
-        p_xi = 1
+        p_xi = 1.0
         for j in range(cols):
 
             p_xi *= norm.pdf(
@@ -50,6 +50,32 @@ def bayes_class(x_train, y_train, x):
                 )
 
         p = p_label * p_xi
+
+        if (p > maxP):
+            maxP = p
+            maxLabel = label
+
+    return maxLabel
+
+def bayes_class(x_train, y_train, x):
+    maxP, maxLabel = 0, -1
+
+    unq, counts = np.unique(y_train, return_counts=True)
+    rows, cols = np.shape(x_train)
+
+    for i in range(len(unq)):
+        label = round(unq[i])
+        p_label = counts[i] / rows
+
+        mn = multivariate_normal(
+            np.mean(x_train[y_train == label, :]), 
+            np.var(x_train[y_train == label, :])
+            )
+
+        p_xi = mn.pdf(x)
+        print(p_xi)
+        p = p_label * p_xi
+
         if (p > maxP):
             maxP = p
             maxLabel = label
@@ -59,14 +85,24 @@ def bayes_class(x_train, y_train, x):
 X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.33, random_state=42)
 
 
+y_pred_ind = np.zeros(len(X_test))
+for i in range(len(X_test)):
+    y_pred_ind[i] = bayes_class_ind(X_train, y_train, X_test[i])
+
+        
 y_pred = np.zeros(len(X_test))
 for i in range(len(X_test)):
     y_pred[i] = bayes_class(X_train, y_train, X_test[i])
-        
+
+
 fig, ax = plt.subplots()
-plt.scatter(X_train[:,0], X_train[:,1], c=y_train)
+ax.scatter(X_train[:,0], X_train[:,1], c=y_train)
+ax.scatter(X_test[:,0], X_test[:,1], c=y_pred_ind,  marker="x")
+ax.set_title("Assuming ind. normal distr.")
 
-plt.scatter(X_test[:,0], X_test[:,1], c=y_pred,  marker="x")
-
+fig, ax = plt.subplots()
+ax.scatter(X_train[:,0], X_train[:,1], c=y_train)
+ax.scatter(X_test[:,0], X_test[:,1], c=y_pred,  marker="x")
+ax.set_title("Assuming multivariate normal distr.")
 
 plt.show()
