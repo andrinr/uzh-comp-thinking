@@ -7,12 +7,13 @@ from scipy.stats import norm
 from scipy.stats import multivariate_normal
 from sklearn.model_selection import train_test_split
 
-nLabels, minSamples, maxSamples, testSamples = 3, 200, 400, 20
+nLabels, minSamples, maxSamples, testSamples = 5, 200, 400, 20
 
 for i in range(nLabels):
 
     n = minSamples + round((maxSamples-minSamples) * rnd.random())
-    means, cov = [5*(rnd.random()-0.5), 5*(rnd.random()-0.5)], [[rnd.random()-0.5,rnd.random()-0.5], [rnd.random()-0.5,rnd.random()-0.5]]
+    means = [6*(rnd.random()-0.5), 6*(rnd.random()-0.5)]
+    cov = [[rnd.random()-0.5,rnd.random()-0.5], [rnd.random()-0.5,rnd.random()-0.5]]
     sample = np.random.multivariate_normal(means, cov, size=n)
 
     labels = np.full((n,1), i)
