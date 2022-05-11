@@ -10,6 +10,8 @@ from sklearn.model_selection import train_test_split
 
 nLabels, minSamples, maxSamples, testSamples = 5, 200, 400, 20
 
+# Generating datasets
+
 for i in range(nLabels):
 
     n = minSamples + round((maxSamples-minSamples) * rnd.random())
@@ -29,6 +31,7 @@ for i in range(nLabels):
 X = samples[:,0:2]
 y = samples[:,2]
 
+# Classifiers
 
 def bayes_class_ind(x_train, y_train, x):
     maxP, maxLabel = 0, -1
@@ -90,6 +93,12 @@ y_pred_ind = np.zeros(len(X_test))
 for i in range(len(X_test)):
     y_pred_ind[i] = bayes_class_ind(X_train, y_train, X_test[i])
 
+y_pred = np.zeros(len(X_test))
+for i in range(len(X_test)):
+    y_pred[i] = bayes_class(X_train, y_train, X_test[i])
+
+
+# Plotting
 
 blue_star = mlines.Line2D([], [], color='black', marker='.', linestyle='None',
                           markersize=10, label='Train')
@@ -107,10 +116,6 @@ ax1.set_title("Assuming ind. normal distr.")
 ax1.legend(handles=[blue_star, red_square, purple_triangle])
 
 print("Percentage of incorrect classifications with ind. distr.: " , np.sum(y_pred_ind != y_test) / len(y_test))
-
-y_pred = np.zeros(len(X_test))
-for i in range(len(X_test)):
-    y_pred[i] = bayes_class(X_train, y_train, X_test[i])
 
 ax2.scatter(X_train[:,0], X_train[:,1], c=y_train)
 ax2.scatter(X_test[y_pred==y_test,0], X_test[y_pred==y_test,1], c=y_pred[y_pred==y_test],  marker="v")
