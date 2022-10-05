@@ -31,14 +31,5 @@ def update(i):
     imshow.set_data(grid)
 
 ani = FuncAnimation(fig, update, frames=np.linspace(0, 1000, 1), interval=300, repeat=True)
-#
-#start_time = time.time()
-#i = 0
-#while(True):
-#    if time.time() - start_time > 60:
-#        break
-#    i += 1
-#    update(0)
-#print(i)
 
 plt.show()

@@ -39,8 +39,6 @@ def update(i):
     global grid
     global counter
 
-    tmp_grid =  np.copy(grid)
-
     surround = convolve(grid.astype(int), kernel, mode='wrap', cval=0)
     
     grid = \
@@ -48,12 +46,12 @@ def update(i):
         np.logical_and(surround == 2, grid))
 
     grid[:,y-1] = 0
-    candidates, other = np.nonzero(grid)
+    other, candidates = np.nonzero(grid)
     if np.all((grid == 0)):
         distance = 0
         return
 
-    distance = np.max(candidates)
+    distance = max(np.max(candidates), distance)
 
     #np.roll(distances_hist, 1)
     #distances_hist[0] = distance
@@ -68,9 +66,9 @@ g_max_distance = 0
 max_init = np.copy(init)
 for g in range(200):
     
-    for t in range(150):
+    distance = 0
+    for t in range(300):
         update(t)
-
 
     if distance > g_max_distance:
         g_max_distance = distance
@@ -78,10 +76,11 @@ for g in range(200):
     else:
         init = max_init
 
-    print(g_max_distance, t)
+    print(g_max_distance, distance, t)
 
-    rand = np.random.rand(2*k, 2*k) > 0.95
+    rand = np.random.rand(2*k, 2*k) > 0.9
     init[rand] = np.invert( init  )[rand]
+
     grid = np.zeros((x,y))
     grid[cx - k: cx + k, cy - k: cy + k] = init
 
@@ -92,6 +91,6 @@ def update_anim(i):
 
 grid = np.zeros((x,y))
 grid[cx - k: cx + k, cy - k: cy + k] = max_init
-ani = FuncAnimation(fig, update_anim, frames=np.linspace(0, 1000, 1), interval=300, repeat=True)
+ani = FuncAnimation(fig, update_anim, frames=np.linspace(0, 1000, 1), interval=100, repeat=True)
 
 plt.show()
