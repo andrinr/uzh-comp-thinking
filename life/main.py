@@ -3,9 +3,6 @@ import matplotlib.pyplot as plt
 from scipy.ndimage import convolve
 from matplotlib.animation import FuncAnimation
 
-import time
-
-
 x = 1000
 y = 1000
 
