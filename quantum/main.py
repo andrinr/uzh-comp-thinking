@@ -1,8 +1,15 @@
 import numpy as np
 import math
+import pandas as pd
 import matplotlib.pyplot as plt
 from operators import X, Y, Z , rot_OP, H
-from compiler import eval
+from compiler import eval, eval_v
+
+
+file_name = input('Provide a .q file \n')
+
+df = pd.read_csv(file_name, delim_whitespace=True, header=None)
+print(df)
 
 q_zero = np.array([1.+0j,0.+0j])
 q_zero_b = np.array([1,0])
@@ -16,21 +23,14 @@ def collapse(q_in):
     print(a)
     return int(a > (math.pi / 2.))
 
-def to_bloch(q_in):
-    theta = np.arccos(q_in[0] * 2.)
-    psi = np.log(q_in[1]) / (np.sin(theta/2.) * 1j)
-
-    print('bloch', theta, psi)
-
 q_a = np.array([1.+0j,0.+0j])
 q_b = np.array([0.+0j,1.+0j])
 
 r = eval(q_a, [rot_OP(0, 0.3), X, Y, Z, H])
-
-to_bloch(r)
+r = eval_v(q_a, [rot_OP(0, 0.3), X, Y, Z, H])
 
 print(r, collapse(r))
 
 print(collapse(q_b))
 
-ax = plt.axes(projection='3d')
+
