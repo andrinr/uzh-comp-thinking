@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from operators import I, H, RX, RY, RZ, X, Y, Z, equis, parse_symbol
 
 # Params
 ERROR_MARGIN = 0.00001
@@ -57,3 +58,35 @@ def eval_v(q_in, operators):
     if not check_qbit(q): raise Exception("invalid qubit state")
 
     return q
+
+# parses array of symbols into array of operators and generates a linked list
+def parse_lane(lane):
+    root = parse_symbol(lane[0])
+    prev = root
+    for i in range(len(lane)):
+        prev.set_next(parse_symbol(lane[i]))
+        prev = prev.next
+
+def reduce(root):
+    current = root
+    prev = None
+    while current.next != None:
+        a = current.id
+        b = current.next.id
+        if a + b in equis:
+            s = equis[a + b]
+            replace = parse_symbol(s)
+            
+            if prev != None:
+                prev.set_next(replace)
+                
+            if current.next.next == None:
+                replace.set_next(current.next.next)
+
+            current = replace
+
+        prev = current
+        current = prev.next
+
+def test():
+    

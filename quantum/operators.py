@@ -1,10 +1,16 @@
 import numpy as np
+from string import digits
+import re
 
 ### Quantum Operators
 class OP: 
     def __init__(self, id, M):
         self.id = id
         self.M = M
+        self.next = None
+    
+    def set_next(self, next):
+        self.next = next
 
 class I(OP):
     def __init__(self):
@@ -91,42 +97,29 @@ equis = {
     'hi' : 'h',
 }
 
-def train():
-    ops = {0: 'x', 1: 'y', 2: 'z', 3: 'i', 4: 'h'}
-    n = 40
-    lane = np.vectorize(ops.get)(np.random.randint(0, len(ops), n))
-    print(lane)
-    for i in range(10):
-        i = 0
-        j = 1
-        while( i < len(lane) and  j < len(lane)):
-            while(i < len(lane) and lane[i] == '-' ):
-                i+=1
-                j+=1
-            if (i >= len(lane) or j >= len(lane)):
-                break
-            while(j < len(lane) and lane[j] == '-'):
-                j+=1
-            
-            print(i, j)
-            c = lane[i] + lane[j]
-            if c in equis:
-                lane[i] = equis[c]
-                lane[j] = '-'
+# parses a symbol into an operator
+def parse_symbol(symbol):
+    remove_digits = str.maketrans('', '', digits)
+    symbol = symbol.translate(remove_digits)
 
-            i+=1
-            j+=1
+    if symbol == 'x':
+        return X()
+    elif symbol == 'y':
+        return Y()
+    elif symbol == 'z':
+        return Z()
+    elif symbol == 'h':
+        return H()
+    elif symbol == 'i':
+        return I()
+    elif symbol == 'rx':
+        angle = re.findall("\d+\.\d+", symbol)[0]
+        return RX(angle)
+    elif symbol == 'ry':
+        angle = re.findall("\d+\.\d+", symbol)[0]
+        return RY(angle)
+    elif symbol == 'rz':
+        angle = re.findall("\d+\.\d+", symbol)[0]
+        return RZ(angle)
 
-            print(lane)
-
-    
-
-train()
-
-
-
-def reduce(ops):
-    a = np.zeros(len(ops))
-
-    
 
