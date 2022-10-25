@@ -1,3 +1,3 @@
-x       y       y       y       -       y       x
-c1      -       -       -       c1      y       x
-rx0.1   ry0.5   
+x       x       y       z       i       i       z
+i       rx0.5   y       i       z       c1      y
+i       x       z       i       y       c2      y

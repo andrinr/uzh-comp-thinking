@@ -9,6 +9,9 @@ class OP:
         self.M = M
         self.next = None
     
+    def __str__(self):
+        return self.id
+
     def set_next(self, next):
         self.next = next
 
@@ -55,31 +58,42 @@ class H(OP):
 
 class RX(OP):
     def __init__(self, angle):
+        self.angle = angle
         c = np.cos(angle/2) + 0j
         s = np.sin(angle/2) + 0j
         M = np.array([
             [c, (0.-1j) * s], 
             [(0.-1j) * s, c]])
 
-        OP.__init__(self, 'rx' + angle, M)
+        OP.__init__(self, 'rx', M)
 
 class RY(OP):
     def __init__(self, angle):
+        self.angle = angle
         c = np.cos(angle/2) + 0j
         s = np.sin(angle/2) + 0j
         M = np.array([
            [c, -s], 
             [s, c]])
 
-        OP.__init__(self, 'ry' + angle, M)
+        OP.__init__(self, 'ry', M)
 
 class RZ(OP):
     def __init__(self, angle):
+        self.angle = angle
         M = np.array([
             [np.exp(-1j * angle / 2), 0], 
             [0, np.exp(1j * angle / 2)]])
 
-        OP.__init__(self, 'rz' + angle, M)
+        OP.__init__(self, 'rz', M)
+
+class CNOT(OP):
+    def __init__(self, type, lane = 0, nlanes = 0):
+        self.type = type
+        if type == 'c':
+
+        OP.__init__(self, 'c', None)
+
 
 equis = {
     'xx' : 'i',
@@ -87,39 +101,33 @@ equis = {
     'hh' : 'i',
     'zz' : 'i',
     'xz' : 'y',
-    'ix' : 'x',
-    'xi' : 'x',
-    'iy' : 'y',
-    'yi' : 'y',
-    'iz' : 'z',
-    'zi' : 'z',
-    'ih' : 'h',
-    'hi' : 'h',
 }
 
 # parses a symbol into an operator
-def parse_symbol(symbol):
-    remove_digits = str.maketrans('', '', digits)
-    symbol = symbol.translate(remove_digits)
-
-    if symbol == 'x':
+def parse_symbol(symbol, lane):
+    op = re.sub('[^a-zA-Z]+', '', symbol)
+    if op == "x":
         return X()
-    elif symbol == 'y':
+    elif op == "y":
         return Y()
-    elif symbol == 'z':
+    elif op == "z":
         return Z()
-    elif symbol == 'h':
+    elif op == "h":
         return H()
-    elif symbol == 'i':
+    elif op == "i":
         return I()
-    elif symbol == 'rx':
-        angle = re.findall("\d+\.\d+", symbol)[0]
+    elif op == "cc":
+        return CNOT("c")
+    elif op == "ct":
+        return CNOT("t", lane)
+    elif op == "rx":
+        angle = float(re.findall(r"[-+]?(?:\d*\.\d+|\d+)", symbol)[0])
         return RX(angle)
-    elif symbol == 'ry':
-        angle = re.findall("\d+\.\d+", symbol)[0]
+    elif op == "ry":
+        angle = float(re.findall(r"[-+]?(?:\d*\.\d+|\d+)", symbol)[0])
         return RY(angle)
-    elif symbol == 'rz':
-        angle = re.findall("\d+\.\d+", symbol)[0]
+    elif op == "rz":
+        angle = float(re.findall(r"[-+]?(?:\d*\.\d+|\d+)", symbol)[0])
         return RZ(angle)
 
-
+    raise Exception("Unknown symbol: " + symbol)
