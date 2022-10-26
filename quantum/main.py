@@ -1,22 +1,24 @@
 import numpy as np
-import math
 import pandas as pd
 import matplotlib.pyplot as plt
 from operators import X, Y, Z , RX, RY, H, I
-from compiler import eval, eval_v, parse_circuit, parse_lane, reduce_lane, reduce_circuit, print_circuit
+from compiler import reduce_circuit
+from circuit import Circuit
 
 file_name = input('Provide a .q file \n')
 
-df = pd.read_csv(file_name, delim_whitespace=True, header=None)
-circ_raw = df.to_numpy()
-
-
-circ = parse_circuit(circ_raw)
+circ1 = Circuit.read_dot_q(file_name)
 
 print('circuit as specified')
-print_circuit(circ)
+circ1.log()
 
-circ_opt = reduce_circuit(circ)
+circ_opt = reduce_circuit(circ1)
 
 print('reduced circuit')
-print_circuit(circ_opt)
+circ1.log()
+
+q_zero = np.full(2**circ1.n(), 0+0j)
+q_zero[0] = 1 + 0j
+#q_res = circ1.evaluate(q_zero)
+
+#print('resulting qubit state', q_res)

@@ -1,3 +1,3 @@
-x       x       y       z       i       i       z
-i       rx0.5   y       i       z       c1      y
-i       x       z       i       y       c2      y
+x       x       y       z       i       i       z       ct1
+i       rx0.5   rx0.2   i       z       z       y       cc1
+i       x       z       i       y       x       y       i
