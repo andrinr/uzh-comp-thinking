@@ -25,22 +25,28 @@ class Circuit:
             
         return q
 
-    def log(self):
+    def log(self, title = ''):
+        print('QC id:' + str(self.id) + ' ' + title)
         n, m = np.shape(self.circuit)
+        print('', end ="\t")
         for j in range(m):
             print(j,  end ="\t")
         print('')
+
         for j in range(m):
             print('--------',  end ="")
         print('')
+
         for i in range(n):
+            print(str(i), end ="\t")
             for j in range(m):
                 print(self.circuit[i,j].id,  end ="\t")
             print('')
 
         for j in range(m):
             print('--------',  end ="")
-        print('')
+
+        print('\n')
 
     def n(self):
         return np.shape(self.circuit)[0]

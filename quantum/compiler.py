@@ -96,7 +96,7 @@ def apply_equivs(circuit_obj):
         if 0 == mutations:
             break
 
-    print('total mutations: ', total_mutations)
+    #print('total mutations: ', total_mutations)
 
 
 def reduce_circuit(circuit_object):
@@ -104,9 +104,6 @@ def reduce_circuit(circuit_object):
     n, m = np.shape(circ)
 
     apply_equivs(circuit_object)
-
-    print('with equivalences and left shifts')
-    circuit_object.log()
 
     mask = []
     for j in range(m):
