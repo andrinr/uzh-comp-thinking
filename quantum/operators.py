@@ -8,12 +8,21 @@ class OP:
         self.id = id
         self.M = M
         self.next = None
+        # ensure errors when not setting positions
+        self.i = -1
+        self.j = -1
+
+    def set_position(self, i, j):
+        self.i = i
+        self.j = j
+        return self
     
     def __str__(self):
         return self.id
 
     def set_next(self, next):
         self.next = next
+        return self
 
 class I(OP):
     def __init__(self):
@@ -114,56 +123,55 @@ equivs = {
 }
 
 # parses a symbol into an operator
-def parse_symbol(symbol, column = -1, circuit_ID = -1):
+def parse_symbol(symbol, row = -1, column = -1, circuit_ID = -1):
     op = re.sub('[^a-zA-Z]+', '', symbol)
     if op == "x":
-        return X()
+        return X().set_position(row, column)
 
     elif op == "y":
-        return Y()
+        return Y().set_position(row, column)
 
     elif op == "z":
-        return Z()
+        return Z().set_position(row, column)
 
     elif op == "h":
-        return H()
+        return H().set_position(row, column)
 
     elif op == "i":
-        return I()
+        return I().set_position(row, column)
 
     elif op == "cc":
         if column == -1 or circuit_ID == -1:
             raise Exception("CNOTs must be parsed with column and circuit_ID")
         op_ID = int(re.search(r'\d+', symbol).group())
-        return CNOT("c", op_ID, column, circuit_ID)
+        return CNOT("c", op_ID, column, circuit_ID).set_position(row, column)
 
     elif op == "ct":
         if column == -1 or circuit_ID == -1:
             raise Exception("CNOTs must be parsed with column and circuit_ID")
         op_ID = int(re.search(r'\d+', symbol).group())
-        return CNOT("t", op_ID, column, circuit_ID)
+        return CNOT("t", op_ID, column, circuit_ID).set_position(row, column)
 
     elif op == "rx":
         floats = re.findall(r"[-+]?(?:\d*\.\d+|\d+)", symbol)
         if len(floats) == 0:
             raise Exception("RX must be parsed with an angle")
         angle = float(floats[0])
-        return RX(angle)
+        return RX(angle).set_position(row, column)
         
     elif op == "ry":
         floats = re.findall(r"[-+]?(?:\d*\.\d+|\d+)", symbol)
         if len(floats) == 0:
             raise Exception("RX must be parsed with an angle")
         angle = float(floats[0])
-        return RY(angle)
+        return RY(angle).set_position(row, column)
 
     elif op == "rz":
         floats = re.findall(r"[-+]?(?:\d*\.\d+|\d+)", symbol)
         if len(floats) == 0:
             raise Exception("RX must be parsed with an angle")
         angle = float(floats[0])
-        return RZ(angle)
+        return RZ(angle).set_position(row, column)
 
     else:
         raise Exception("Unknown symbol: " + symbol)
-        return None

@@ -27,10 +27,20 @@ class Circuit:
 
     def log(self):
         n, m = np.shape(self.circuit)
+        for j in range(m):
+            print(j,  end ="\t")
+        print('')
+        for j in range(m):
+            print('--------',  end ="")
+        print('')
         for i in range(n):
             for j in range(m):
                 print(self.circuit[i,j].id,  end ="\t")
             print('')
+
+        for j in range(m):
+            print('--------',  end ="")
+        print('')
 
     def n(self):
         return np.shape(self.circuit)[0]
@@ -43,7 +53,7 @@ class Circuit:
         circuit = np.empty((n,m), dtype=object)
         for i in range(n):
             for j in range(m):
-                circuit[i,j] = parse_symbol(raw_circuit[i, j], j, circuit_ID)
+                circuit[i,j] = parse_symbol(raw_circuit[i, j], i, j, circuit_ID)
 
         return circuit
 

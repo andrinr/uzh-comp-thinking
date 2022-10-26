@@ -11,73 +11,102 @@ def check_qbit(qbit):
     d = (1 - (np.abs(alpha) ** 2 + np.abs(beta) ** 2))
     return np.abs(d) < ERROR_MARGIN
 
-def apply_equivs(lane):
-    n_mutations = 0
-    n = 0
+def apply_equivs(circuit_obj):
+    circuit = circuit_obj.circuit
+    n, m = np.shape(circuit)
+    total_mutations = 0
     while True:
-        for i in range(len(lane)-1):
-            a = lane[i].id
-    
-            # search for the next non-id operator
-            j = i+1
-            while(j < len(lane)-1 and lane[j].id == 'i'):
-                j +=1 
-            b = lane[j].id
-            if a == 'i' and b=='i': continue
+        mutations = 0
+        for i in range(m-1):
+            for row in range(n):
+                a = circuit[row, i].id
+        
+                # search for the next non-id operator
+                j = i+1
+                while(j < m-1 and circuit[row, j].id == 'i'):
+                    j +=1 
+                b = circuit[row, j].id
+                if a == 'i' and b=='i': continue
 
-            if a + b in equivs:
-                s = equivs[a + b]
-                lane[i] = parse_symbol(s)
-                lane[j] = I()
-                n+=1
-                continue
+                if a + b in equivs:
+                    s = equivs[a + b]
+                    circuit[row, i] = parse_symbol(s, row, i)
+                    circuit[row, j] = I()
+                    circuit[row, j].set_position(row, j)
+                    mutations+=1
+                    continue
 
-            elif a == 'rx' and b == 'rx':
-                lane[i] = RX(lane[i].angle + lane[j].angle)
-                lane[j] = I()
-                n+=1
-                continue
+                elif a == 'rx' and b == 'rx':
+                    circuit[row, i] = RX(circuit[row, i].angle + circuit[row, j].angle)
+                    circuit[row, i].set_position(row, i)
+                    circuit[row, j] = I()
+                    circuit[row, j].set_position(row, j)
+                    mutations+=1
+                    continue
 
-            elif a == 'ry' and b == 'ry':
-                lane[i] = RY(lane[i].angle + lane[j].angle)
-                lane[j] = I()
-                n+=1
-                continue
+                elif a == 'ry' and b == 'ry':
+                    circuit[row, i] = RY(circuit[row, i].angle + circuit[row, j].angle)
+                    circuit[row, i].set_position(row, i)
+                    circuit[row, j] = I()
+                    circuit[row, j].set_position(row, j)
+                    n+=1
+                    continue
 
-            elif a == 'rz' and b == 'rz':
-                lane[i] = RZ(lane[i].angle + lane[j].angle)
-                lane[j] = I()
-                n+=1
-                continue
+                elif a == 'rz' and b == 'rz':
+                    circuit[row, i] = RZ(circuit[row, i].angle + circuit[row, j].angle)
+                    circuit[row, i].set_position(row, i)
+                    circuit[row, j] = I()
+                    circuit[row, j].set_position(row, j)
+                    mutations+=1
+                    continue
+                    
+                elif b != 'c' and a == 'i':
+                    circuit[row, i] = circuit[row, j]
+                    circuit[row, i].set_position(row, i)
+                    circuit[row, j] = I()
+                    circuit[row, j].set_position(row, j)
+                    mutations+=1
+                    continue
+                
+                elif b == 'c' and a == 'i':
+                    row_linked = circuit[row, j].linked.i
 
-            #elif b != 'c' and a == 'i':
-            #    lane[i] = lane[j]
-            #    lane[j] = I()
-            #    n+=1
-            #    continue
-            
-            # set j to next non id operator
-            i = j
+                    only_identities = True
+                    for k in range(i, j):
+                        if circuit[row_linked, k].id != 'i':
+                            only_identities = False
+                    
+                    if only_identities:
+                        circuit[row, i] = circuit[row, j]
+                        circuit[row, i].set_position(row, i)
+                        circuit[row, j] = I()
+                        circuit[row, j].set_position(row, j)
 
+                        circuit[row_linked, i] = circuit[row_linked, j]
+                        circuit[row_linked, i].set_position(row_linked, i)
+
+                        circuit[row_linked, j] = I()
+                        circuit[row_linked, j].set_position(row_linked, j)
+                        mutations+=2
+                        continue
+        
         # break in case of no optimization
-        n_mutations += n
+        total_mutations += mutations
 
-        if n == 0:
+        if 0 == mutations:
             break
 
-        n = 0
-    
-    return lane
+    print('total mutations: ', total_mutations)
 
 
 def reduce_circuit(circuit_object):
     circ = circuit_object.circuit
     n, m = np.shape(circ)
 
-    for i in range(n):
-        circ[i,:] = apply_equivs(circ[i,:])
+    apply_equivs(circuit_object)
 
-    print('with equis')
+    print('with equivalences and left shifts')
+    circuit_object.log()
 
     mask = []
     for j in range(m):
