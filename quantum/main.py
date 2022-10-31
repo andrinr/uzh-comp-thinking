@@ -16,7 +16,7 @@ circ_opt = reduce_circuit(circ1)
 circ1.log('reduced circuit')
 
 q_zero = np.full(2**circ1.n(), 0+0j)
-q_zero[0] = 1 + 0j
-#q_res = circ1.evaluate(q_zero)
+q_zero[-1] = 1
+q_res = circ1.evaluate(q_zero)
 
-#print('resulting qubit state', q_res)
+print('resulting qubit state', q_res)

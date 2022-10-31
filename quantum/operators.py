@@ -113,13 +113,14 @@ class CNOT(OP):
 
         OP.__init__(self, 'c', None)
 
-
+# q operator equivalences
 equivs = {
     'xx' : 'i',
     'yy' : 'i',
     'hh' : 'i',
     'zz' : 'i',
     'xz' : 'y',
+
 }
 
 # parses a symbol into an operator
