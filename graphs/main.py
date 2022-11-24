@@ -19,18 +19,21 @@ def shortest_path(A, i, j):
     l = 1
     P = A.copy()
     n, m = A.shape
-    while P[i,j] == 0 and l < n:
-        P = np.linalg.matrix_power(P, 2)
+    while P[i,j] == 0:
         l += 1
-
+        P = np.linalg.matrix_power(A, l)
+        if l == n:
+            return None
+        
     # test with networkx
     G = nx.from_numpy_array(A)
     if nx.shortest_path_length(G, i, j) != l:
-        print('error')
+        print('lengths do not match, should be', nx.shortest_path_length(G, i, j))
 
     return l
 
 def min_spanning_tree(A, w):
+    # greedy shortest path (kruskal's algorithm)
     n, m = A.shape
     edges = []
     for i in range(n):
@@ -42,28 +45,23 @@ def min_spanning_tree(A, w):
     visited_nodes = set()
     visited_nodes.add(0)
     
+    length = 0
     tree = []
     for e in edges:
         if e[0] not in visited_nodes or e[1] not in visited_nodes:
             visited_nodes.add(e[0])
             visited_nodes.add(e[1])
-            A[e[0], e[1]] = 2
-            A[e[1], e[0]] = 2
             tree.append(e)
+            length += e[2]
 
-    return tree
+    return length, tree
 
-A, w = gen_graph(20, 0.2)
-print(A, w)
-nx.draw(nx.from_numpy_matrix(A), with_labels=True)
+A, w = gen_graph(50, 0.05)
+nx.draw(nx.from_numpy_matrix(A), with_labels=True, node_size=20)
 
 sp = shortest_path(A, 0, 5) 
-tree = min_spanning_tree(A, w)
-print(tree)
+print('Shortest path length', sp)
 
-if sp == 20:
-    print('No path found')
-else:
-    print('Shortest path length', sp)
-plt.show()
+tree_length, tree = min_spanning_tree(A, w)
+print('Tree length', tree_length)
 
