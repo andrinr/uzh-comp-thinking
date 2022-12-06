@@ -45,32 +45,32 @@ def inverse_grammar(grammar):
     return inv_grammar
  
 
-def check_word(word, variables, alphabet, inv_grammar, start_symbol='S', max_length=2):
+def check_word(word, inv_grammar, cache, start_symbol='S', max_length=2):
+    if word in cache:
+        return False
 
     if word == start_symbol:
         return True
 
+    #print(word)
+
     for i in range(len(word)):
         for j in range(1,min(max_length + 1, len(word)-i + 1)):
            
-            #print(word[i:i+j])
-            if word[i:i+j] in inv_grammar:
-                for end in inv_grammar[word[i:i+j]]:
-                    if check_word(
-                        word[:i] + end + word[i+j:], 
-                        variables, 
-                        alphabet, 
-                        grammar, 
-                        start_symbol, 
-                        max_length):
-                        return True
+            if word[i:i+j] not in inv_grammar:
+                continue
+
+            for end in inv_grammar[word[i:i+j]]:
+                if check_word(
+                    word[:i] + end + word[i+j:], 
+                    inv_grammar, 
+                    cache,
+                    start_symbol, 
+                    max_length):
+                    return True
 
     return False
     
-
-variables = {'S', 'A', 'B', 'C'}
-alphabet = {'a', 'b'}
-
 grammar = dict()
 grammar['S'] = ['AB', 'BC']
 grammar['A'] = ['BA', 'a']
@@ -79,4 +79,11 @@ grammar['C'] = ['AB', 'a']
 
 word = 'abaa'
 
-print(check_word(word, variables, alphabet, inverse_grammar(grammar)))
+while(True):
+    word = input('Enter word: ')
+    if word == 'exit':
+        break
+    if check_word(word, inverse_grammar(grammar), {}):
+        print('Word in language')
+    else:
+        print('Word not in language')
