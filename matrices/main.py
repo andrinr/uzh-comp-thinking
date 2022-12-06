@@ -48,26 +48,29 @@ def solve_dp(matrices):
     # evaluate DP tables, cost: O(n**3)
     for l in range(2, num_matrices):
         for i in range(num_matrices - l):
+            # iterate over subsequnce combinations
             for a in range(1,l):
                 b = l - a
                 j = i + a
 
-                ij = complexity(sizes[a, i], sizes[b, j])
+                ij_cost = complexity(sizes[a, i], sizes[b, j])
+                new_cost =  costs[a,i] + costs[b,j] + ij_cost
 
-                if costs[a,i] + costs[b,j] + ij < costs[l,i]:
-                    costs[l,i] = costs[a,i] + costs[b,j] + ij
+                if new_cost < costs[l,i]:
+                    costs[l,i] = new_cost
                     sizes[l,i] = get_size(sizes[a,i], sizes[b,j])
 
     # fetch result from table
     return costs, costs[num_matrices -1, 0], naive_costs
 
 
-fig, axs = plt.subplots(nrows=4, ncols=4, figsize=(9, 12))
+n, m = 3, 3
+fig, axs = plt.subplots(nrows=n, ncols=m, figsize=(9, 12))
 fig.suptitle("DP tables with each" + str(100) + " random matrices.", fontsize=18)
 fig.tight_layout(pad=3.0)
 
-for k in range(4):
-    for l in range(4):
+for k in range(n):
+    for l in range(m):
 
         num_matrices = 100
         matrices = gen_matrices(num_matrices)

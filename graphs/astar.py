@@ -82,7 +82,6 @@ fig, axs = plt.subplots(nrows=4, ncols=4, figsize=(9, 12))
 
 for k in range(4):
     for l in range(4):
-
         s = 50
         maze = np.random.random((s, s)) < random.random() * 0.3 + 0.4
         maze[0,0] = 1
