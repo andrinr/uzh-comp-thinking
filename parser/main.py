@@ -34,19 +34,38 @@ words in language:
 import numpy as np
 import matplotlib.pyplot as plt
 
-def check_word(word, variables, alphabet, grammar):
-    print(word)
-    l = list(word)
-    if len(l) == 1:
-        if l[0] in alphabet:
-            return False
-
+def inverse_grammar(grammar):
+    inv_grammar = {}
     for start, ends in grammar.items():
         for end in ends:
-            for i in range(len(l)):
-                print(l[i], start, end)
-                if l[i] == end and start != l[i]:
-                    check_word(start + word[1:], variables, alphabet, grammar)
+            if end not in inv_grammar:
+                inv_grammar[end] = [start]
+            else:
+                inv_grammar[end].append(start)
+    return inv_grammar
+ 
+
+def check_word(word, variables, alphabet, inv_grammar, start_symbol='S', max_length=2):
+
+    if word == start_symbol:
+        return True
+
+    for i in range(len(word)):
+        for j in range(1,min(max_length + 1, len(word)-i + 1)):
+           
+            #print(word[i:i+j])
+            if word[i:i+j] in inv_grammar:
+                for end in inv_grammar[word[i:i+j]]:
+                    if check_word(
+                        word[:i] + end + word[i+j:], 
+                        variables, 
+                        alphabet, 
+                        grammar, 
+                        start_symbol, 
+                        max_length):
+                        return True
+
+    return False
     
 
 variables = {'S', 'A', 'B', 'C'}
@@ -58,6 +77,6 @@ grammar['A'] = ['BA', 'a']
 grammar['B'] = ['CC', 'b']
 grammar['C'] = ['AB', 'a']
 
-word = 'abbaa'
+word = 'abaa'
 
-print(check_word(word, variables, alphabet, grammar))
+print(check_word(word, variables, alphabet, inverse_grammar(grammar)))
